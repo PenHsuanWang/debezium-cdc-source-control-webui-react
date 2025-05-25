@@ -1,0 +1,9 @@
+{
+  "connector.class": "io.debezium.connector.oracle.OracleConnector",
+  "database.hostname": "localhost",
+  "database.port": "1521",
+  "database.user": "system",
+  "database.password": "oracle",
+  "database.dbname": "ORCLCDB",
+  "database.server.name": "fullfillment"
+}

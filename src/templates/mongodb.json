@@ -1,0 +1,8 @@
+{
+  "connector.class": "io.debezium.connector.mongodb.MongoDbConnector",
+  "mongodb.hosts": "rs0/localhost:27017",
+  "mongodb.name": "fullfillment",
+  "mongodb.user": "dbuser",
+  "mongodb.password": "dbpass",
+  "database.include.collection.list": "mydb.*"
+}

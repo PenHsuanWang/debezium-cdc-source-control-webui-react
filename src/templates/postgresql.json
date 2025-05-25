@@ -1,0 +1,11 @@
+{
+  "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+  "database.hostname": "localhost",
+  "database.port": "5432",
+  "database.user": "myuser",
+  "database.password": "mypassword",
+  "database.dbname": "postgres",
+  "database.server.name": "fullfillment",
+  "table.include.list": "",
+  "publication.autocreate.mode": "filtered"
+}

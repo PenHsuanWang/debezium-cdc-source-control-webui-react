@@ -1,0 +1,11 @@
+{
+  "connector.class": "io.debezium.connector.mysql.MySqlConnector",
+  "database.hostname": "localhost",
+  "database.port": "3306",
+  "database.user": "user",
+  "database.password": "pass",
+  "database.server.id": "184054",
+  "database.server.name": "fulfillment",
+  "database.include.list": "inventory",
+  "plugin.name": "mysql_native_password"
+}

@@ -1,0 +1,10 @@
+{
+  "connector.class": "io.debezium.connector.cassandra.CassandraConnector",
+  "contactPoints": "127.0.0.1:9042",
+  "loadBalancing.localDc": "datacenter1",
+  "keyspace": "test_keyspace",
+  "username": "cassandra",
+  "password": "cassandra",
+  "connector.mode": "initial",
+  "table.names": ""
+}

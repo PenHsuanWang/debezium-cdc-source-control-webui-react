@@ -1,0 +1,9 @@
+{
+  "connector.class": "io.debezium.connector.sqlserver.SqlServerConnector",
+  "database.hostname": "localhost",
+  "database.port": "1433",
+  "database.user": "sa",
+  "database.password": "password",
+  "database.dbname": "mydb",
+  "database.server.name": "fulfillment"
+}
