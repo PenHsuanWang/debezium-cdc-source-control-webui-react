@@ -74,13 +74,17 @@ const CreateWizard: React.FC = () => {
     const configTemplate = connectorTemplates[data.type] || {};
     return {
       ...configTemplate,
-      'name': data.name,
-      'connector.class': configTemplate['connector.class'],
       'database.hostname': data.host,
       'database.port': Number(data.port),
       'database.user': data.username,
       'database.password': data.password,
       'database.dbname': data.database,
+      // Debezium 2.x uses topic.prefix instead of database.server.name
+      'topic.prefix': data.name,
+      // Provide a sensible default for internal history
+      'schema.history.internal.kafka.bootstrap.servers':
+        configTemplate['schema.history.internal.kafka.bootstrap.servers'] ||
+        'kafka:9092',
       // (add or override more fields if necessary)
     };
   };

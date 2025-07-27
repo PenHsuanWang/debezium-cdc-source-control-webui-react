@@ -25,6 +25,13 @@ connected, the dashboard will list all available connectors and allow you to
 control them. Use the **Home** button in the top bar to quickly return to the
 dashboard and refresh the connector list.
 
+## Connector Configuration
+
+The creation wizard automatically adds the required `topic.prefix` property to
+new connectors. It also sets
+`schema.history.internal.kafka.bootstrap.servers` to `kafka:9092` by default so
+that MySQL connectors start without additional manual configuration.
+
 The page will reload if you make edits.\
 You will also see any lint errors in the console.
 
