@@ -1,0 +1,78 @@
+version: "3.8"
+
+services:
+  zookeeper:
+    image: quay.io/debezium/zookeeper:3.2
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    restart: unless-stopped
+
+  kafka:
+    image: quay.io/debezium/kafka:3.2
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    environment:
+      # 若要在主機外部連線，可自行調整 ADVERTISED_HOST_NAME
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    ports:
+      - "9092:9092"
+    restart: unless-stopped
+
+  mysql:
+    image: quay.io/debezium/example-mysql:3.2
+    container_name: mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: debezium
+      MYSQL_USER: mysqluser
+      MYSQL_PASSWORD: mysqlpw
+    restart: unless-stopped
+
+  mysql-cli:
+    image: mysql:8.2
+    container_name: mysql-cli
+    depends_on:
+      - mysql
+    entrypoint: ["sh","-c","sleep infinity"]
+    # 只為了方便 exec 進去，不需要開外部埠
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------
+  # 4️⃣  Kafka-Connect + Debezium (single worker)
+  #
+  #     ◾  CORS **must** use the CONNECT_ prefix – the entrypoint script copies
+  #        everything that starts with CONNECT_ into connect-distributed.properties
+  #        (lower-cased, dots instead of underscores).
+  #
+  #     ◾  REST_HOST_NAME forces Jetty to bind on 0.0.0.0 so it is reachable
+  #        from the host on Docker Desktop.
+  # ---------------------------------------------------------------------------
+  connect:
+    image: quay.io/debezium/connect:3.2
+    container_name: connect
+    depends_on:
+      - kafka
+      - mysql
+    ports:
+      - "8083:8083"
+    environment:
+      # -----  Kafka-Connect worker basics  -----
+      GROUP_ID: 1
+      BOOTSTRAP_SERVERS: kafka:9092
+      CONFIG_STORAGE_TOPIC: my_connect_configs
+      OFFSET_STORAGE_TOPIC: my_connect_offsets
+      STATUS_STORAGE_TOPIC: my_connect_statuses
+      REST_HOST_NAME: 0.0.0.0        # listen on all interfaces
+      REST_PORT: 8083                # (default, just explicit)
+
+      # -----  CORS so the React UI can call us -----
+      CONNECT_ACCESS_CONTROL_ALLOW_ORIGIN: "http://localhost:3000"
+      CONNECT_ACCESS_CONTROL_ALLOW_METHODS: "GET,POST,PUT,DELETE,OPTIONS"
+      CONNECT_ACCESS_CONTROL_ALLOW_HEADERS: "Content-Type,Authorization"
+
+      # (optional) If you authenticate, also allow credentials
+      # CONNECT_ACCESS_CONTROL_ALLOW_CREDENTIALS: "true"
+    restart: unless-stopped
