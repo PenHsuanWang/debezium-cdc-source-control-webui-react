@@ -29,8 +29,9 @@ dashboard and refresh the connector list.
 
 The creation wizard automatically adds the required `topic.prefix` property to
 new connectors. It also sets
-`schema.history.internal.kafka.bootstrap.servers` to `kafka:9092` by default so
-that MySQL connectors start without additional manual configuration.
+`schema.history.internal.kafka.bootstrap.servers` to `kafka:9092` by default and
+initializes `schema.history.internal.kafka.topic` to `schema-changes.<connector
+name>` so that MySQL connectors start without additional manual configuration.
 
 The page will reload if you make edits.\
 You will also see any lint errors in the console.
