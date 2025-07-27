@@ -5,8 +5,10 @@ import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Chip from '@mui/material/Chip';
 import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
 import { useHost } from '../context/HostContext';
-import HealthPoller from './HealthPoller'; // <-- Fix here
+import { Link as RouterLink } from 'react-router-dom';
+import HealthPoller from './HealthPoller';
 
 const TopBar: React.FC = () => {
   const { state } = useHost();
@@ -22,6 +24,12 @@ const TopBar: React.FC = () => {
             color={state.healthy ? 'success' : 'error'}
             size="small"
           />
+          <Button color="inherit" component={RouterLink} to="/host">
+            Change Host
+          </Button>
+          <Button color="inherit" component={RouterLink} to="/create">
+            New Connector
+          </Button>
           <HealthPoller />
         </Box>
       </Toolbar>
