@@ -21,9 +21,10 @@ type ConnectorInfo = {
 
 interface Props {
   connectors: ConnectorInfo[];
+  onActionComplete?: () => void;
 }
 
-const ConnectorTable: React.FC<Props> = ({ connectors }) => {
+const ConnectorTable: React.FC<Props> = ({ connectors, onActionComplete }) => {
   const { state } = useHost();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedConnector, setSelectedConnector] = useState<ConnectorInfo | null>(null);
@@ -60,6 +61,7 @@ const ConnectorTable: React.FC<Props> = ({ connectors }) => {
       const res = await fetchWithTimeout(url, { method }, 5000);
       if (!res.ok) throw new Error(`${action} failed`);
       setSnackbarMsg(`${action.charAt(0).toUpperCase() + action.slice(1)} succeeded`);
+      onActionComplete && onActionComplete();
     } catch (e: any) {
       setSnackbarMsg(`Error: ${e.message}`);
     }

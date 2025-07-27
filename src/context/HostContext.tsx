@@ -11,9 +11,13 @@ const initialState: HostState = {
   healthy: false,
 };
 
+type HostAction =
+  | { type: 'SET_HOST'; payload: string }
+  | { type: 'SET_HEALTH'; payload: boolean };
+
 type HostContextType = {
   state: HostState;
-  dispatch: React.Dispatch<any>;
+  dispatch: React.Dispatch<HostAction>;
 };
 
 const HostContext = createContext<HostContextType | undefined>(undefined);
@@ -22,12 +26,19 @@ type HostProviderProps = {
   children: ReactNode;
 };
 
+function reducer(state: HostState, action: HostAction): HostState {
+  switch (action.type) {
+    case 'SET_HOST':
+      return { ...state, host: action.payload };
+    case 'SET_HEALTH':
+      return { ...state, healthy: action.payload };
+    default:
+      return state;
+  }
+}
+
 export const HostProvider: React.FC<HostProviderProps> = ({ children }) => {
-  // Dummy reducer; replace with your actual logic
-  const [state, dispatch] = useReducer(
-    (state: HostState, action: any) => ({ ...state, ...action }),
-    initialState
-  );
+  const [state, dispatch] = useReducer(reducer, initialState);
 
   return (
     <HostContext.Provider value={{ state, dispatch }}>

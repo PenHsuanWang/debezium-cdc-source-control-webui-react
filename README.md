@@ -2,6 +2,13 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+## Overview
+
+This UI allows you to monitor and control Debezium connectors via the REST API
+exposed by a running Debezium Connect instance. Configure the host of your
+Debezium service (e.g. `http://localhost:8083`) and you'll be able to view,
+create, pause, resume and delete connectors directly from the browser.
+
 ## Available Scripts
 
 In the project directory, you can run:
@@ -10,6 +17,11 @@ In the project directory, you can run:
 
 Runs the app in the development mode.\
 Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+
+When the UI loads, navigate to **Change Host** in the top bar and enter the URL
+of your Debezium Connect instance (e.g. `http://localhost:8083`). Once
+connected, the dashboard will list all available connectors and allow you to
+control them.
 
 The page will reload if you make edits.\
 You will also see any lint errors in the console.

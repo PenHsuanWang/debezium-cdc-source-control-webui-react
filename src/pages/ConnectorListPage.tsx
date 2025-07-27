@@ -1,13 +1,73 @@
 // src/pages/ConnectorListPage.tsx
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useHost } from '../context/HostContext';
-import { Card, CardContent, Typography, Table, TableHead, TableRow, TableCell, TableBody, Box, Alert } from '@mui/material';
+import {
+  Card,
+  CardContent,
+  Typography,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  Box,
+  Alert,
+  Button,
+  CircularProgress,
+} from '@mui/material';
+import { Link as RouterLink } from 'react-router-dom';
+import ConnectorTable from '../components/ConnectorTable';
+import { fetchWithTimeout } from '../utils/api';
+
+type ConnectorInfo = {
+  name: string;
+  status: string;
+  tasks: any[];
+  type: string;
+};
 
 const ConnectorListPage: React.FC = () => {
   const { state } = useHost();
+  const [connectors, setConnectors] = useState<ConnectorInfo[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  // In a real app, you would fetch connector data, but for now, show empty if not connected.
   const isConnected = state.healthy && !!state.host;
+
+  const loadConnectors = async () => {
+    if (!isConnected) {
+      setConnectors([]);
+      return;
+    }
+    try {
+      setLoading(true);
+      const res = await fetchWithTimeout(`${state.host}/connectors`, {}, 5000);
+      if (!res.ok) throw new Error('Failed to fetch connectors');
+      const names: string[] = await res.json();
+      const details = await Promise.all(
+        names.map(async (name) => {
+          const r = await fetchWithTimeout(`${state.host}/connectors/${name}/status`, {}, 5000);
+          if (!r.ok) throw new Error('Status error');
+          const d = await r.json();
+          return {
+            name,
+            status: d.connector.state,
+            tasks: d.tasks,
+            type: d.type,
+          } as ConnectorInfo;
+        })
+      );
+      setConnectors(details);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadConnectors();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.host, state.healthy]);
 
   return (
     <Box>
@@ -20,7 +80,15 @@ const ConnectorListPage: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* Table for Connectors */}
+      <Box sx={{ mb: 2, display: 'flex', gap: 2 }}>
+        <Button variant="outlined" onClick={loadConnectors} disabled={!isConnected || loading}>
+          Refresh
+        </Button>
+        <Button variant="contained" component={RouterLink} to="/create">
+          Create Connector
+        </Button>
+      </Box>
+
       <Card>
         <CardContent>
           <Typography variant="h6" gutterBottom>
@@ -31,31 +99,10 @@ const ConnectorListPage: React.FC = () => {
               Disconnected: Debezium Connect REST server not reachable. No connector data to display.
             </Alert>
           )}
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Name</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell>Type</TableCell>
-                <TableCell>Tasks</TableCell>
-                <TableCell>Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {isConnected ? (
-                // Map your connectors here
-                <TableRow>
-                  <TableCell colSpan={5}>Loading connectors...</TableCell>
-                </TableRow>
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={5} align="center">
-                    No data. Please configure a host and ensure Debezium is running.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
+          {loading && <CircularProgress size={24} sx={{ mt: 2 }} />}
+          {isConnected && !loading && (
+            <ConnectorTable connectors={connectors} onActionComplete={loadConnectors} />
+          )}
         </CardContent>
       </Card>
     </Box>
