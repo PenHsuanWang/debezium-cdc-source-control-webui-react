@@ -7,11 +7,17 @@ import Chip from '@mui/material/Chip';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import { useHost } from '../context/HostContext';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import HealthPoller from './HealthPoller';
 
 const TopBar: React.FC = () => {
   const { state } = useHost();
+  const navigate = useNavigate();
+
+  const goHome = () => {
+    navigate('/');
+    window.dispatchEvent(new Event('refresh-connectors'));
+  };
   return (
     <AppBar position="static">
       <Toolbar>
@@ -26,6 +32,9 @@ const TopBar: React.FC = () => {
           />
           <Button color="inherit" component={RouterLink} to="/host">
             Change Host
+          </Button>
+          <Button color="inherit" onClick={goHome}>
+            Home
           </Button>
           <Button color="inherit" component={RouterLink} to="/create">
             New Connector

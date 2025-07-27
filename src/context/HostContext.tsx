@@ -6,8 +6,11 @@ type HostState = {
   healthy: boolean;
   // ... add other fields as needed
 };
+const storedHost =
+  typeof window !== 'undefined' ? localStorage.getItem('debezium-host') || '' : '';
+
 const initialState: HostState = {
-  host: '',
+  host: storedHost,
   healthy: false,
 };
 
@@ -39,6 +42,14 @@ function reducer(state: HostState, action: HostAction): HostState {
 
 export const HostProvider: React.FC<HostProviderProps> = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
+
+  React.useEffect(() => {
+    if (state.host) {
+      localStorage.setItem('debezium-host', state.host);
+    } else {
+      localStorage.removeItem('debezium-host');
+    }
+  }, [state.host]);
 
   return (
     <HostContext.Provider value={{ state, dispatch }}>
