@@ -1,3 +1,4 @@
+// src/components/CreateWizard.tsx
 import React, { useState } from 'react';
 import {
   Stepper, Step, StepLabel, Button, Box, Typography, TextField, FormControl, MenuItem
@@ -54,20 +55,24 @@ const CreateWizard: React.FC = () => {
     resolver: yupResolver(schema),
     mode: 'onChange'
   });
-  const { handleSubmit, control, watch } = methods;
+  const { handleSubmit, control, watch, getValues, formState } = methods;
   const [activeStep, setActiveStep] = useState(0);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [snackbar, setSnackbar] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
   const { state } = useHost();
 
   const type = watch('type');
+  const steps = ['Connector Type', 'Properties', 'Review'];
+
   const onNext = () => setActiveStep((prev) => prev + 1);
   const onBack = () => setActiveStep((prev) => prev - 1);
 
-  const onSubmit = async (data: ConnectorForm) => {
-    // Build the final config JSON
-    const configTemplate = connectorTemplates[type] || {};
-    const config = {
+  // Compose config
+  const buildConfig = () => {
+    const data = getValues();
+    const configTemplate = connectorTemplates[data.type] || {};
+    return {
       ...configTemplate,
       'name': data.name,
       'connector.class': configTemplate['connector.class'],
@@ -76,22 +81,39 @@ const CreateWizard: React.FC = () => {
       'database.user': data.username,
       'database.password': data.password,
       'database.dbname': data.database,
-      // add more fields as needed
+      // (add or override more fields if necessary)
     };
+  };
+
+  const onSubmit = async () => {
+    const data = getValues();
+    const config = buildConfig();
+
+    // Safety: ensure host is set
+    if (!state.host) {
+      setSnackbar('Please set the Debezium Connect host before creating a connector.');
+      return;
+    }
+
+    setSubmitting(true);
     try {
       const res = await fetch(`${state.host}/connectors`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: data.name, config }),
       });
-      if (!res.ok) throw new Error('Failed to create connector');
-      navigate('/connectors');
+      if (!res.ok) {
+        const errorBody = await res.text();
+        throw new Error(errorBody || 'Failed to create connector');
+      }
+      setSnackbar('Connector created successfully');
+      setTimeout(() => navigate('/'), 1000);
     } catch (err: any) {
-      setErrorMsg(err.message);
+      setSnackbar(`Failed to create connector: ${err.message}`);
+    } finally {
+      setSubmitting(false);
     }
   };
-
-  const steps = ['Connector Type', 'Properties', 'Review'];
 
   return (
     <FormProvider {...methods}>
@@ -108,9 +130,8 @@ const CreateWizard: React.FC = () => {
             <Controller
               name="type"
               control={control}
-              rules={{ required: true }}
               render={({ field }) => (
-                <TextField select label="Connector Type" {...field}>
+                <TextField select label="Connector Type" {...field} required>
                   {connectorTypes.map((opt) => (
                     <MenuItem key={opt.value} value={opt.value}>
                       {opt.label}
@@ -119,7 +140,9 @@ const CreateWizard: React.FC = () => {
                 </TextField>
               )}
             />
-            <Button onClick={onNext} disabled={!type}>Next</Button>
+            <Box sx={{ mt: 2 }}>
+              <Button onClick={onNext} disabled={!type}>Next</Button>
+            </Box>
           </FormControl>
         )}
 
@@ -170,7 +193,7 @@ const CreateWizard: React.FC = () => {
             />
             <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
               <Button variant="outlined" onClick={onBack}>Back</Button>
-              <Button type="submit" variant="contained">Next</Button>
+              <Button type="submit" variant="contained" disabled={!formState.isValid}>Next</Button>
             </Box>
           </Box>
         )}
@@ -180,24 +203,17 @@ const CreateWizard: React.FC = () => {
           <Box>
             <Typography variant="h6">Review Configuration JSON</Typography>
             <ConfigEditor readOnly value={JSON.stringify({
-              name: methods.getValues('name'),
-              config: {
-                ...connectorTemplates[type],
-                'database.hostname': methods.getValues('host'),
-                'database.port': Number(methods.getValues('port')),
-                'database.user': methods.getValues('username'),
-                'database.password': methods.getValues('password'),
-                'database.dbname': methods.getValues('database'),
-              }
+              name: getValues('name'),
+              config: buildConfig()
             }, null, 2)} />
             <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
               <Button variant="outlined" onClick={onBack}>Back</Button>
-              <Button variant="contained" onClick={handleSubmit(onSubmit)}>Finish</Button>
+              <Button variant="contained" onClick={onSubmit} disabled={submitting}>Finish</Button>
             </Box>
           </Box>
         )}
 
-        {errorMsg && <Typography color="error" sx={{ mt: 2 }}>{errorMsg}</Typography>}
+        <AlertSnackbar message={snackbar || ''} onClose={() => setSnackbar(null)} />
       </Box>
     </FormProvider>
   );

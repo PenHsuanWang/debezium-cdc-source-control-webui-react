@@ -10,7 +10,7 @@ const HealthPoller: React.FC = () => {
     const controller = new AbortController();
     const checkHealth = async () => {
       try {
-        const res = await fetchWithTimeout(`${state.host}/connectors`, {}, 5000, controller);
+const res = await fetchWithTimeout(`${state.host}/connectors`, {}, 5000);
         if (!res.ok) throw new Error('Network response was not ok');
         dispatch({ type: 'SET_HEALTH', payload: true });
       } catch (e) {
