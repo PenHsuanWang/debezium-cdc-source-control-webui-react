@@ -85,6 +85,8 @@ const CreateWizard: React.FC = () => {
       'schema.history.internal.kafka.bootstrap.servers':
         configTemplate['schema.history.internal.kafka.bootstrap.servers'] ||
         'kafka:9092',
+      'schema.history.internal.kafka.topic':
+        `schema-changes.${data.name}`,
       // (add or override more fields if necessary)
     };
   };

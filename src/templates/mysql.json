@@ -6,6 +6,7 @@
   "database.password": "pass",
   "database.server.id": "184054",
   "topic.prefix": "fulfillment",
+  "schema.history.internal.kafka.topic": "schema-changes.fulfillment",
   "schema.history.internal.kafka.bootstrap.servers": "kafka:9092",
   "database.include.list": "inventory",
   "plugin.name": "mysql_native_password"
