@@ -11,6 +11,7 @@ const HostPage: React.FC = () => {
 
   const saveHost = () => {
     dispatch({ type: 'SET_HOST', payload: host });
+    window.dispatchEvent(new Event('refresh-connectors'));
     navigate('/');
   };
 

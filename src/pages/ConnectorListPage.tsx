@@ -1,5 +1,5 @@
 // src/pages/ConnectorListPage.tsx
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useHost } from '../context/HostContext';
 import {
   Card,
@@ -33,7 +33,7 @@ const ConnectorListPage: React.FC = () => {
 
   const isConnected = state.healthy && !!state.host;
 
-  const loadConnectors = async () => {
+  const loadConnectors = useCallback(async () => {
     if (!isConnected) {
       setConnectors([]);
       return;
@@ -62,12 +62,18 @@ const ConnectorListPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [isConnected, state.host]);
 
   useEffect(() => {
     loadConnectors();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.host, state.healthy]);
+
+  useEffect(() => {
+    const handler = () => loadConnectors();
+    window.addEventListener('refresh-connectors', handler);
+    return () => window.removeEventListener('refresh-connectors', handler);
+  }, [loadConnectors]);
 
   return (
     <Box>
