@@ -57,11 +57,14 @@ const ConnectorTable: React.FC<Props> = ({ connectors, onActionComplete }) => {
       let url = `${state.host}/connectors/${name}`;
       if (action === 'pause') url += '/pause';
       if (action === 'resume') url += '/resume';
-      if (action === 'restart') url += '/restart';
+      if (action === 'restart')
+        url += '/restart?includeTasks=true&onlyFailed=true';
       if (action === 'delete') {
         url += ''; // DELETE at connector endpoint
       }
-      const method = (action === 'delete' ? 'DELETE' : 'PUT');
+      let method = 'PUT';
+      if (action === 'delete') method = 'DELETE';
+      if (action === 'restart') method = 'POST';
       const res = await fetchWithTimeout(url, { method }, 5000);
       if (!res.ok) throw new Error(`${action} failed`);
       setSnackbarMsg(`${action.charAt(0).toUpperCase() + action.slice(1)} succeeded`);
