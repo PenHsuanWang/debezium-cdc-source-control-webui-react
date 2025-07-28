@@ -10,6 +10,7 @@ import {
 import { useHost } from '../context/HostContext';
 import ConfirmDialog from './ConfirmDialog';
 import AlertSnackbar from './AlertSnackbar';
+import UpdateDialog from './UpdateDialog';
 import { fetchWithTimeout } from '../utils/api';
 
 type ConnectorInfo = {
@@ -29,6 +30,7 @@ const ConnectorTable: React.FC<Props> = ({ connectors, onActionComplete }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedConnector, setSelectedConnector] = useState<ConnectorInfo | null>(null);
   const [openDialog, setOpenDialog] = useState(false);
+  const [openUpdate, setOpenUpdate] = useState(false);
   const [actionType, setActionType] = useState<string>('');
   const [snackbarMsg, setSnackbarMsg] = useState<string | null>(null);
   const [openRows, setOpenRows] = useState<Record<string, boolean>>({});
@@ -46,6 +48,11 @@ const ConnectorTable: React.FC<Props> = ({ connectors, onActionComplete }) => {
   const confirmDelete = () => {
     setActionType('delete');
     setOpenDialog(true);
+    handleMenuClose();
+  };
+
+  const openUpdateDialog = () => {
+    setOpenUpdate(true);
     handleMenuClose();
   };
 
@@ -170,6 +177,7 @@ const ConnectorTable: React.FC<Props> = ({ connectors, onActionComplete }) => {
         {selectedConnector?.status === 'PAUSED' && (
           <MenuItem onClick={() => { handleAction('resume'); handleMenuClose(); }}>Resume</MenuItem>
         )}
+        <MenuItem onClick={openUpdateDialog}>Update</MenuItem>
         <MenuItem onClick={() => { handleAction('restart'); handleMenuClose(); }}>Restart</MenuItem>
         <MenuItem onClick={confirmDelete} color="error">Delete</MenuItem>
       </Menu>
@@ -180,6 +188,12 @@ const ConnectorTable: React.FC<Props> = ({ connectors, onActionComplete }) => {
         content={`Are you sure you want to delete connector "${selectedConnector?.name}"?`}
         onClose={() => setOpenDialog(false)}
         onConfirm={() => handleAction('delete')}
+      />
+      <UpdateDialog
+        open={openUpdate}
+        connector={selectedConnector?.name || null}
+        onClose={() => setOpenUpdate(false)}
+        onUpdated={() => onActionComplete && onActionComplete()}
       />
       {/* Snackbar for notifications */}
       {snackbarMsg && (
