@@ -31,6 +31,10 @@ const ConnectorTable: React.FC<Props> = ({ connectors, onActionComplete }) => {
   const [openDialog, setOpenDialog] = useState(false);
   const [actionType, setActionType] = useState<string>('');
   const [snackbarMsg, setSnackbarMsg] = useState<string | null>(null);
+  const [openRows, setOpenRows] = useState<Record<string, boolean>>({});
+
+  const toggleRow = (name: string) =>
+    setOpenRows((o) => ({ ...o, [name]: !o[name] }));
 
   const handleMenuClick = (event: React.MouseEvent<HTMLElement>, connector: ConnectorInfo) => {
     setAnchorEl(event.currentTarget);
@@ -83,47 +87,75 @@ const ConnectorTable: React.FC<Props> = ({ connectors, onActionComplete }) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {connectors.map((conn) => (
-              <React.Fragment key={conn.name}>
-                <TableRow>
-                  <TableCell>
-                    <IconButton size="small">
-                      <KeyboardArrowDown />
-                    </IconButton>
-                  </TableCell>
-                  <TableCell>{conn.name}</TableCell>
-                  <TableCell>{conn.type}</TableCell>
-                  <TableCell>
-                    <Chip
-                      label={conn.status}
-                      color={conn.status === 'RUNNING' ? 'success' : (conn.status === 'FAILED' ? 'error' : 'warning')}
-                      size="small"
-                    />
-                  </TableCell>
-                  <TableCell>
-                    {conn.tasks.length} ({conn.tasks.filter(t => t.state === 'RUNNING').length} running)
-                  </TableCell>
-                  <TableCell align="right">
-                    <IconButton size="small" onClick={(e) => handleMenuClick(e, conn)}>
-                      <MoreVert />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
-                    <Collapse in={false} timeout="auto" unmountOnExit>
-                      <Box margin={1}>
-                        <Typography variant="h6" gutterBottom>
-                          Tasks Details
-                        </Typography>
-                        {/* Additional tasks or metrics can be added here */}
-                        <Typography>No additional details implemented.</Typography>
-                      </Box>
-                    </Collapse>
-                  </TableCell>
-                </TableRow>
-              </React.Fragment>
-            ))}
+            {connectors.map((conn) => {
+              const running = conn.tasks.filter((t) => t.state === 'RUNNING').length;
+              const failed = conn.tasks.filter((t) => t.state === 'FAILED').length;
+              return (
+                <React.Fragment key={conn.name}>
+                  <TableRow>
+                    <TableCell>
+                      <IconButton size="small" onClick={() => toggleRow(conn.name)}>
+                        {openRows[conn.name] ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
+                      </IconButton>
+                    </TableCell>
+                    <TableCell>{conn.name}</TableCell>
+                    <TableCell>{conn.type}</TableCell>
+                    <TableCell>
+                      <Chip
+                        label={conn.status}
+                        color={conn.status === 'RUNNING' ? 'success' : conn.status === 'FAILED' ? 'error' : 'warning'}
+                        size="small"
+                      />
+                    </TableCell>
+                    <TableCell>
+                      {conn.tasks.length} ({running} running{failed ? `, ${failed} failed` : ''})
+                    </TableCell>
+                    <TableCell align="right">
+                      <IconButton size="small" onClick={(e) => handleMenuClick(e, conn)}>
+                        <MoreVert />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
+                      <Collapse in={openRows[conn.name]} timeout="auto" unmountOnExit>
+                        <Box margin={1}>
+                          <Typography variant="subtitle1" gutterBottom component="div">
+                            Tasks Details
+                          </Typography>
+                          <Table size="small">
+                            <TableHead>
+                              <TableRow>
+                                <TableCell>ID</TableCell>
+                                <TableCell>State</TableCell>
+                                <TableCell>Worker</TableCell>
+                                <TableCell>Error</TableCell>
+                              </TableRow>
+                            </TableHead>
+                            <TableBody>
+                              {conn.tasks.map((t) => (
+                                <TableRow key={t.id}>
+                                  <TableCell>{t.id}</TableCell>
+                                  <TableCell>
+                                    <Chip
+                                      label={t.state}
+                                      color={t.state === 'RUNNING' ? 'success' : t.state === 'FAILED' ? 'error' : 'warning'}
+                                      size="small"
+                                    />
+                                  </TableCell>
+                                  <TableCell>{t.worker_id}</TableCell>
+                                  <TableCell>{t.trace ? t.trace : '-'}</TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </Box>
+                      </Collapse>
+                    </TableCell>
+                  </TableRow>
+                </React.Fragment>
+              );
+            })}
           </TableBody>
         </Table>
       </TableContainer>
