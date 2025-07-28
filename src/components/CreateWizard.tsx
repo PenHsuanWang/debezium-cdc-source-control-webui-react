@@ -1,25 +1,28 @@
 // src/components/CreateWizard.tsx
 import React, { useState } from 'react';
 import {
-  Stepper, Step, StepLabel, Button, Box, Typography, TextField, FormControl, MenuItem
+  Stepper,
+  Step,
+  StepLabel,
+  Button,
+  Box,
+  Typography,
+  TextField,
+  FormControl,
+  MenuItem,
 } from '@mui/material';
-import { useForm, Controller, FormProvider } from 'react-hook-form';
+import { useForm, FormProvider, Control } from 'react-hook-form';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useNavigate } from 'react-router-dom';
 import { useHost } from '../context/HostContext';
 import AlertSnackbar from './AlertSnackbar';
 import ConfigEditor from './ConfigEditor';
+import ConnectorFormFields, { ConnectorFieldValues } from './ConnectorFormFields';
 import connectorTemplates from '../templates';
 
-type ConnectorForm = {
+type ConnectorForm = ConnectorFieldValues & {
   type: string;
-  name: string;
-  host: string;
-  port: string;
-  username: string;
-  password: string;
-  database: string;
 };
 
 const connectorTypes = [
@@ -155,48 +158,7 @@ const CreateWizard: React.FC = () => {
         {/* Step 2: Properties */}
         {activeStep === 1 && (
           <Box component="form" noValidate onSubmit={handleSubmit(onNext)} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <Controller
-              name="name"
-              control={control}
-              render={({ field, fieldState }) => (
-                <TextField label="Connector Name" {...field} error={!!fieldState.error} helperText={fieldState.error?.message} required />
-              )}
-            />
-            <Controller
-              name="host"
-              control={control}
-              render={({ field, fieldState }) => (
-                <TextField label="Host" {...field} error={!!fieldState.error} helperText={fieldState.error?.message} required />
-              )}
-            />
-            <Controller
-              name="port"
-              control={control}
-              render={({ field, fieldState }) => (
-                <TextField label="Port" type="number" {...field} error={!!fieldState.error} helperText={fieldState.error?.message} required />
-              )}
-            />
-            <Controller
-              name="username"
-              control={control}
-              render={({ field, fieldState }) => (
-                <TextField label="User" {...field} error={!!fieldState.error} helperText={fieldState.error?.message} required />
-              )}
-            />
-            <Controller
-              name="password"
-              control={control}
-              render={({ field, fieldState }) => (
-                <TextField label="Password" type="password" {...field} error={!!fieldState.error} helperText={fieldState.error?.message} required />
-              )}
-            />
-            <Controller
-              name="database"
-              control={control}
-              render={({ field, fieldState }) => (
-                <TextField label="Database Name" {...field} error={!!fieldState.error} helperText={fieldState.error?.message} required />
-              )}
-            />
+            <ConnectorFormFields control={control as unknown as Control<ConnectorFieldValues>} />
             <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
               <Button variant="outlined" onClick={onBack}>Back</Button>
               <Button type="submit" variant="contained" disabled={!formState.isValid}>Next</Button>
