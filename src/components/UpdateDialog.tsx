@@ -22,18 +22,29 @@ interface UpdateDialogProps {
   onUpdated: () => void;
 }
 
-const schema = yup.object({
-  name: yup.string(),
+// Validation schema strictly aligned with ConnectorFieldValues
+const schema: yup.ObjectSchema<ConnectorFieldValues> = yup.object({
+  name: yup.string().required('Connector name is required'),
   host: yup.string().required('Host is required'),
   port: yup.string().required('Port is required').matches(/^\d+$/, 'Port must be a number'),
   username: yup.string().required('User is required'),
   password: yup.string().required('Password is required'),
   database: yup.string().required('Database name is required'),
-});
+}).required();
 
 const UpdateDialog: React.FC<UpdateDialogProps> = ({ open, connector, onClose, onUpdated }) => {
   const { state } = useHost();
-  const methods = useForm<ConnectorFieldValues>({ resolver: yupResolver<ConnectorFieldValues>(schema) });
+  const methods = useForm<ConnectorFieldValues>({
+    resolver: yupResolver(schema),
+    defaultValues: {
+      name: '',
+      host: '',
+      port: '',
+      username: '',
+      password: '',
+      database: '',
+    },
+  });
   const { control, reset, handleSubmit, formState } = methods;
   const [baseConfig, setBaseConfig] = useState<any | null>(null);
   const [snackbarMsg, setSnackbarMsg] = useState<string | null>(null);
