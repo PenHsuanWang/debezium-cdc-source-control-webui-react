@@ -11,7 +11,7 @@ import {
   FormControl,
   MenuItem,
 } from '@mui/material';
-import { useForm, FormProvider, Control } from 'react-hook-form';
+import { useForm, FormProvider, Control, Controller } from 'react-hook-form';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useNavigate } from 'react-router-dom';
