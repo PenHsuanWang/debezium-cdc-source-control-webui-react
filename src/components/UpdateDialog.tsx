@@ -33,7 +33,7 @@ const schema = yup.object({
 
 const UpdateDialog: React.FC<UpdateDialogProps> = ({ open, connector, onClose, onUpdated }) => {
   const { state } = useHost();
-  const methods = useForm<ConnectorFieldValues>({ resolver: yupResolver(schema) });
+  const methods = useForm<ConnectorFieldValues>({ resolver: yupResolver<ConnectorFieldValues>(schema) });
   const { control, reset, handleSubmit, formState } = methods;
   const [baseConfig, setBaseConfig] = useState<any | null>(null);
   const [snackbarMsg, setSnackbarMsg] = useState<string | null>(null);
