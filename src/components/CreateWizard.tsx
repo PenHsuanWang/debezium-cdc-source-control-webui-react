@@ -20,6 +20,7 @@ type ConnectorForm = {
   username: string;
   password: string;
   database: string;
+  tasks: string;
 };
 
 const connectorTypes = [
@@ -39,6 +40,7 @@ const schema = yup.object({
   username: yup.string().required('User is required'),
   password: yup.string().required('Password is required'),
   database: yup.string().required('Database name is required'),
+  tasks: yup.string().required('Tasks is required').matches(/^\d+$/, 'Tasks must be a number')
 });
 
 const CreateWizard: React.FC = () => {
@@ -50,7 +52,8 @@ const CreateWizard: React.FC = () => {
       port: '',
       username: '',
       password: '',
-      database: ''
+      database: '',
+      tasks: '1'
     },
     resolver: yupResolver(schema),
     mode: 'onChange'
@@ -79,6 +82,7 @@ const CreateWizard: React.FC = () => {
       'database.user': data.username,
       'database.password': data.password,
       'database.dbname': data.database,
+      'tasks.max': Number(data.tasks),
       // Debezium 2.x uses topic.prefix instead of database.server.name
       'topic.prefix': data.name,
       // Provide a sensible default for internal history
@@ -195,6 +199,13 @@ const CreateWizard: React.FC = () => {
               control={control}
               render={({ field, fieldState }) => (
                 <TextField label="Database Name" {...field} error={!!fieldState.error} helperText={fieldState.error?.message} required />
+              )}
+            />
+            <Controller
+              name="tasks"
+              control={control}
+              render={({ field, fieldState }) => (
+                <TextField label="Tasks" type="number" {...field} error={!!fieldState.error} helperText={fieldState.error?.message} required />
               )}
             />
             <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
