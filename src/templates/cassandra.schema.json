@@ -1,0 +1,44 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Debezium – Cassandra connector",
+  "type": "object",
+  "properties": {
+    "BASIC": {
+      "title": "Connection",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Connector Name",
+          "type": "string",
+          "default": "my_cassandra_connector"
+        },
+        "contactPoints": {
+          "title": "Contact Points",
+          "type": "string",
+          "default": "127.0.0.1:9042"
+        },
+        "loadBalancing.localDc": {
+          "title": "Local DC",
+          "type": "string",
+          "default": "datacenter1"
+        },
+        "keyspace": {
+          "title": "Keyspace",
+          "type": "string",
+          "default": "test_keyspace"
+        },
+        "username": {
+          "title": "User",
+          "type": "string",
+          "default": "cassandra"
+        },
+        "password": {
+          "title": "Password",
+          "type": "string",
+          "format": "password"
+        }
+      },
+      "required": ["name", "contactPoints", "username", "password"]
+    }
+  }
+}
