@@ -43,3 +43,26 @@ export async function fetchWithTimeout(
     return doFetch();
   }
 }
+
+/**
+ * Create a new Debezium connector
+ */
+export async function createConnector(
+  host: string,
+  config: Record<string, unknown>,
+  timeout = 8000
+): Promise<void> {
+  const res = await fetchWithTimeout(
+    `${host}/connectors`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: String(config.name || ''), config })
+    },
+    timeout
+  );
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(text || 'Failed to create connector');
+  }
+}

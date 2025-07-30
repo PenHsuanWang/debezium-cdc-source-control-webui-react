@@ -1,0 +1,43 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Debezium – MongoDB connector",
+  "type": "object",
+  "properties": {
+    "BASIC": {
+      "title": "Connection",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Connector Name",
+          "type": "string",
+          "default": "my_mongodb_connector"
+        },
+        "mongodb.hosts": {
+          "title": "Hosts",
+          "type": "string",
+          "default": "rs0/localhost:27017"
+        },
+        "mongodb.user": {
+          "title": "User",
+          "type": "string",
+          "default": "dbuser"
+        },
+        "mongodb.password": {
+          "title": "Password",
+          "type": "string",
+          "format": "password"
+        },
+        "database.include.collection.list": {
+          "title": "Collections",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "mongodb.hosts",
+        "mongodb.user",
+        "mongodb.password"
+      ]
+    }
+  }
+}

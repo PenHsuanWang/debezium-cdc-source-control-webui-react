@@ -1,0 +1,49 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Debezium – PostgreSQL connector",
+  "type": "object",
+  "properties": {
+    "BASIC": {
+      "title": "Connection",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Connector Name",
+          "type": "string",
+          "default": "my_postgres_connector"
+        },
+        "database.hostname": {
+          "title": "Host",
+          "type": "string",
+          "default": "localhost"
+        },
+        "database.port": {
+          "title": "Port",
+          "type": "integer",
+          "default": 5432
+        },
+        "database.user": {
+          "title": "User",
+          "type": "string",
+          "default": "myuser"
+        },
+        "database.password": {
+          "title": "Password",
+          "type": "string",
+          "format": "password"
+        },
+        "database.dbname": {
+          "title": "Database Name",
+          "type": "string",
+          "default": "postgres"
+        }
+      },
+      "required": [
+        "name",
+        "database.hostname",
+        "database.user",
+        "database.password"
+      ]
+    }
+  }
+}
