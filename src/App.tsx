@@ -4,6 +4,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import ConnectorListPage from './pages/ConnectorListPage';
 import HostPage from './pages/HostPage';
 import CreateWizard from './components/CreateWizard';
+import ExpertCreate from './components/ExpertCreate';
 import TopBar from './components/TopBar';
 import Container from '@mui/material/Container';
 
@@ -15,6 +16,7 @@ const App: React.FC = () => (
         <Route path="/" element={<ConnectorListPage />} />
         <Route path="/host" element={<HostPage />} />
         <Route path="/create" element={<CreateWizard />} />
+        <Route path="/create/expert" element={<ExpertCreate />} />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </Container>

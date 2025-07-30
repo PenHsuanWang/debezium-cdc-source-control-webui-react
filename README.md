@@ -33,6 +33,10 @@ new connectors. It also sets
 initializes `schema.history.internal.kafka.topic` to `schema-changes.<connector
 name>` so that MySQL connectors start without additional manual configuration.
 
+For advanced tuning you can enable the expert mode by appending `?beta=true` to
+the URL and using the "Switch to expert mode" link on the first step of the
+wizard. This opens a JSON editor for pasting a full Debezium configuration.
+
 The page will reload if you make edits.\
 You will also see any lint errors in the console.
 

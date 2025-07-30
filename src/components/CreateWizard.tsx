@@ -14,7 +14,7 @@ import {
 import { useForm, FormProvider, Control, Controller } from 'react-hook-form';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation, Link as RouterLink } from 'react-router-dom';
 import { useHost } from '../context/HostContext';
 import AlertSnackbar from './AlertSnackbar';
 import ConfigEditor from './ConfigEditor';
@@ -63,6 +63,8 @@ const CreateWizard: React.FC = () => {
   const [snackbar, setSnackbar] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  const showExpert = new URLSearchParams(location.search).get('beta') === 'true';
   const { state } = useHost();
 
   const type = watch('type');
@@ -151,6 +153,11 @@ const CreateWizard: React.FC = () => {
             />
             <Box sx={{ mt: 2 }}>
               <Button onClick={onNext} disabled={!type}>Next</Button>
+              {showExpert && (
+                <Button component={RouterLink} to="/create/expert" sx={{ ml: 2 }}>
+                  Switch to expert mode
+                </Button>
+              )}
             </Box>
           </FormControl>
         )}
