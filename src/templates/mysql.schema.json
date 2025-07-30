@@ -1,0 +1,100 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Debezium – MySQL connector",
+  "type": "object",
+  "properties": {
+    "BASIC": {
+      "title": "Connection",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Connector Name",
+          "type": "string",
+          "default": "my_mysql_connector",
+          "description": "Unique name inside this Kafka Connect cluster"
+        },
+        "database.hostname": {
+          "title": "Host",
+          "type": "string",
+          "default": "mysql"
+        },
+        "database.port": {
+          "title": "Port",
+          "type": "integer",
+          "default": 3306,
+          "minimum": 1,
+          "maximum": 65535
+        },
+        "database.user": {
+          "title": "User",
+          "type": "string",
+          "default": "debezium"
+        },
+        "database.password": {
+          "title": "Password",
+          "type": "string",
+          "format": "password"
+        },
+        "database.include.list": {
+          "title": "Databases to capture",
+          "type": "string",
+          "default": "inventory",
+          "description": "Comma-separated list or regexp"
+        }
+      },
+      "required": [
+        "name",
+        "database.hostname",
+        "database.user",
+        "database.password"
+      ]
+    },
+    "ADVANCED__Snapshot": {
+      "title": "Snapshot behaviour",
+      "type": "object",
+      "properties": {
+        "snapshot.mode": {
+          "title": "Mode",
+          "type": "string",
+          "enum": [
+            "initial",
+            "initial_only",
+            "when_needed",
+            "schema_only",
+            "no_data",
+            "recovery",
+            "never"
+          ],
+          "default": "initial"
+        },
+        "snapshot.fetch.size": {
+          "title": "Fetch size",
+          "type": "integer",
+          "minimum": 0,
+          "description": "Rows per batch (0 = stream)"
+        }
+      }
+    },
+    "ADVANCED__Performance": {
+      "title": "Performance & buffering",
+      "type": "object",
+      "properties": {
+        "max.batch.size": {
+          "type": "integer",
+          "title": "Max batch size",
+          "default": 2048
+        },
+        "max.queue.size": {
+          "type": "integer",
+          "title": "Max queue size",
+          "default": 8192
+        },
+        "max.queue.size.in.bytes": {
+          "type": "integer",
+          "title": "Max queue bytes",
+          "default": 0
+        }
+      }
+    }
+  }
+}
