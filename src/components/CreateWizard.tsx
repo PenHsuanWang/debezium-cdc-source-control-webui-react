@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState } from "react";
 import {
   Stepper,
   Step,
@@ -10,13 +10,21 @@ import {
   FormControlLabel
 } from "@mui/material";
 import SchemaForm from "./SchemaForm";
-import HostContext from "../context/HostContext";
+import { useHost } from "../context/HostContext";
 import { createConnector } from "../utils/api";
+import {
+  MenuItem,
+  InputLabel,
+  FormControl,
+  Select,
+  SelectChangeEvent
+} from "@mui/material";
 
 const STEPS = ["Connector type", "Properties", "Review"];
 
 export default function CreateWizard() {
-  const { host } = useContext(HostContext);
+  const { state } = useHost();
+  const host = state.host;
   const [step, setStep] = useState(0);
   const [connectorType, setConnectorType] = useState<string | null>(null);
   const [schema, setSchema] = useState<any>(null);
@@ -115,15 +123,6 @@ export default function CreateWizard() {
     </Box>
   );
 }
-
-/* -------------------------------------------------------------------------- */
-import {
-  MenuItem,
-  InputLabel,
-  FormControl,
-  Select,
-  SelectChangeEvent
-} from "@mui/material";
 
 type PickerProps = {
   selected: string | null;
