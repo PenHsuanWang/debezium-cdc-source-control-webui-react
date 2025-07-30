@@ -1,15 +1,6 @@
-// src/templates/index.ts
-import postgresql from './postgresql.json';
-import mysql from './mysql.json';
-import mongodb from './mongodb.json';
-import oracle from './oracle.json';
-import sqlserver from './sqlserver.json';
-
-const connectorTemplates: Record<string, any> = {
-  postgresql,
-  mysql,
-  mongodb,
-  oracle,
-  sqlserver,
-};
-export default connectorTemplates;
+export { default as mysql } from './mysql.schema.json';
+export { default as mongodb } from './mongodb.schema.json';
+export { default as postgresql } from './postgresql.schema.json';
+export { default as oracle } from './oracle.schema.json';
+export { default as sqlserver } from './sqlserver.schema.json';
+export { default as cassandra } from './cassandra.schema.json';
