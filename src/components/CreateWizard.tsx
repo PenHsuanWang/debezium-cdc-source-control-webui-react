@@ -7,18 +7,16 @@ import {
   Button,
   CircularProgress,
   Switch,
-  FormControlLabel
-} from "@mui/material";
-import SchemaForm from "./SchemaForm";
-import { useHost } from "../context/HostContext";
-import { createConnector } from "../utils/api";
-import {
+  FormControlLabel,
   MenuItem,
   InputLabel,
   FormControl,
   Select,
   SelectChangeEvent
 } from "@mui/material";
+import SchemaForm from "./SchemaForm";
+import { useHost } from "../context/HostContext";
+import { createConnector } from "../utils/api";
 
 const STEPS = ["Connector type", "Properties", "Review"];
 
@@ -32,20 +30,21 @@ export default function CreateWizard() {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [loadingSchema, setLoadingSchema] = useState(false);
 
-  /** ---- Step 0 --------------------------------------------------------- */
-  const pickType = (t: string) => {
+  /** Step 0: Connector type selection */
+  const handleTypeSelect = (event: SelectChangeEvent<string>) => {
+    const t = event.target.value;
     setConnectorType(t);
     setLoadingSchema(true);
     import(`../templates/${t.toLowerCase()}.schema.json`)
       .then((mod) => setSchema(mod.default))
-      .catch((e) => console.error("schema load", e))
+      .catch((e) => console.error("Schema load error:", e))
       .finally(() => {
         setLoadingSchema(false);
         setStep(1);
       });
   };
 
-  /** ---- Step 1 --------------------------------------------------------- */
+  /** Step 1: Properties form */
   const renderPropertiesStep = () => {
     if (loadingSchema || !schema) return <CircularProgress />;
     return (
@@ -69,8 +68,8 @@ export default function CreateWizard() {
     );
   };
 
-  /** ---- Step 2 --------------------------------------------------------- */
-  const renderReview = () => (
+  /** Step 2: Review step */
+  const renderReviewStep = () => (
     <pre style={{ maxHeight: 400, overflow: "auto" }}>
       {JSON.stringify(formData, null, 2)}
     </pre>
@@ -79,8 +78,14 @@ export default function CreateWizard() {
   const next = () => setStep((s) => s + 1);
   const back = () => setStep((s) => s - 1);
 
-  const submit = async () => {
-    await createConnector(host, formData as Record<string, unknown>);
+  const handleSubmit = async () => {
+    if (!connectorType) return;
+    try {
+      await createConnector(host, connectorType, formData as Record<string, unknown>);
+      window.dispatchEvent(new Event('refresh-connectors'));
+    } catch (e) {
+      console.error("Create connector failed:", e);
+    }
   };
 
   /** -------------------------------------------------------------------- */
@@ -95,11 +100,11 @@ export default function CreateWizard() {
       </Stepper>
 
       {step === 0 && (
-        <ConnectorTypePicker selected={connectorType} onSelect={pickType} />
+        <ConnectorTypePicker selected={connectorType} onSelect={handleTypeSelect} />
       )}
 
       {step === 1 && renderPropertiesStep()}
-      {step === 2 && renderReview()}
+      {step === 2 && renderReviewStep()}
 
       <Box sx={{ mt: 3 }}>
         <Button disabled={step === 0} onClick={back}>
@@ -115,8 +120,8 @@ export default function CreateWizard() {
           </Button>
         )}
         {step === 2 && (
-          <Button variant="contained" color="success" onClick={submit}>
-            Create connector
+          <Button variant="contained" color="success" onClick={handleSubmit}>
+            Create Connector
           </Button>
         )}
       </Box>
@@ -126,7 +131,7 @@ export default function CreateWizard() {
 
 type PickerProps = {
   selected: string | null;
-  onSelect: (t: string) => void;
+  onSelect: (event: SelectChangeEvent<string>) => void;
 };
 const CONNECTOR_TYPES = [
   "MongoDB",
@@ -138,15 +143,14 @@ const CONNECTOR_TYPES = [
 ];
 
 function ConnectorTypePicker({ selected, onSelect }: PickerProps) {
-  const handle = (e: SelectChangeEvent<string>) => onSelect(e.target.value);
   return (
     <FormControl fullWidth>
-      <InputLabel id="conn-type-label">Connector type</InputLabel>
+      <InputLabel id="conn-type-label">Connector Type</InputLabel>
       <Select
         labelId="conn-type-label"
         value={selected ?? ""}
-        label="Connector type"
-        onChange={handle}
+        label="Connector Type"
+        onChange={onSelect}
       >
         {CONNECTOR_TYPES.map((t) => (
           <MenuItem key={t} value={t}>

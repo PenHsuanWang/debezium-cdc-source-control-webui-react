@@ -45,24 +45,48 @@ export async function fetchWithTimeout(
 }
 
 /**
- * Create a new Debezium connector
+ * Create a new Debezium connector.
  */
 export async function createConnector(
   host: string,
+  type: string,
   config: Record<string, unknown>,
   timeout = 8000
 ): Promise<void> {
+  if (!host) throw new Error('No host specified');
+
+  // Load base configuration for the selected connector type
+  let baseConfig: Record<string, unknown> = {};
+  try {
+    const module = await import(`../templates/${type.toLowerCase()}.json`);
+    baseConfig = module.default;
+  } catch (e) {
+    console.error(`Base config for ${type} not found`, e);
+  }
+
+  // Merge base config with user-provided settings
+  const mergedConfig: Record<string, unknown> = { ...baseConfig, ...config };
+  const connectorName = (mergedConfig.name as string) || (config.name as string);
+  if (!connectorName) throw new Error('Connector name is required');
+
+  // Remove name from config and set default server name if blank
+  delete mergedConfig.name;
+  if (mergedConfig['database.server.name'] === '') {
+    mergedConfig['database.server.name'] = connectorName;
+  }
+
+  const payload = { name: connectorName, config: mergedConfig };
   const res = await fetchWithTimeout(
     `${host}/connectors`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: String(config.name || ''), config })
+      body: JSON.stringify(payload)
     },
     timeout
   );
   if (!res.ok) {
     const text = await res.text();
-    throw new Error(text || 'Failed to create connector');
+    throw new Error(text || `Failed to create connector (status ${res.status})`);
   }
 }
