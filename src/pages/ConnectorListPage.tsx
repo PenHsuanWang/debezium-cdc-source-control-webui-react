@@ -5,11 +5,6 @@ import {
   Card,
   CardContent,
   Typography,
-  Table,
-  TableHead,
-  TableRow,
-  TableCell,
-  TableBody,
   Box,
   Alert,
   Button,
@@ -77,17 +72,16 @@ const ConnectorListPage: React.FC = () => {
 
   return (
     <Box>
-      <Card sx={{ mb: 3 }}>
-        <CardContent>
-          <Typography variant="h5">Connectors Dashboard</Typography>
-          <Typography variant="body2" color="text.secondary">
-            View and manage all Debezium connectors.
-          </Typography>
-        </CardContent>
-      </Card>
+      <Typography variant="h4" gutterBottom>
+        Connectors Dashboard
+      </Typography>
 
       <Box sx={{ mb: 2, display: 'flex', gap: 2 }}>
-        <Button variant="outlined" onClick={loadConnectors} disabled={!isConnected || loading}>
+        <Button
+          variant="outlined"
+          onClick={loadConnectors}
+          disabled={!isConnected || loading}
+        >
           Refresh
         </Button>
         <Button variant="contained" component={RouterLink} to="/create">
@@ -95,18 +89,17 @@ const ConnectorListPage: React.FC = () => {
         </Button>
       </Box>
 
+      {!isConnected && (
+        <Alert severity="warning" sx={{ mb: 2 }}>
+          Disconnected: Debezium Connect REST server not reachable. No connector data to display.
+        </Alert>
+      )}
+
       <Card>
         <CardContent>
-          <Typography variant="h6" gutterBottom>
-            Active Connectors
-          </Typography>
-          {!isConnected && (
-            <Alert severity="warning" sx={{ mb: 2 }}>
-              Disconnected: Debezium Connect REST server not reachable. No connector data to display.
-            </Alert>
-          )}
-          {loading && <CircularProgress size={24} sx={{ mt: 2 }} />}
-          {isConnected && !loading && (
+          {loading ? (
+            <CircularProgress size={24} sx={{ mt: 2 }} />
+          ) : (
             <ConnectorTable connectors={connectors} onActionComplete={loadConnectors} />
           )}
         </CardContent>
