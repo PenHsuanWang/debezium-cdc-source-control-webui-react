@@ -1,6 +1,7 @@
 import React from "react";
 import { JSONSchema7 } from "json-schema";
-import { Form as RJSFForm, IChangeEvent } from "@rjsf/core";
+import Form, { IChangeEvent } from '@rjsf/core';
+import validator from '@rjsf/validator-ajv8';
 import {
   Accordion,
   AccordionSummary,
@@ -38,15 +39,16 @@ export default function SchemaForm({
           </Typography>
         </AccordionSummary>
         <AccordionDetails>
-          <RJSFForm
+          <Form
             schema={sectionSchema as JSONSchema7}
             formData={formData}
             onChange={(e: IChangeEvent) => onChange({ ...formData, ...e.formData })}
+            validator={validator}
             liveValidate
             noHtml5Validate
           >
             <Box />
-          </RJSFForm>
+          </Form>
         </AccordionDetails>
       </Accordion>
     );
